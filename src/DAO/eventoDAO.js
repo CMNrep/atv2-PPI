@@ -2,13 +2,13 @@ import dbconnect from "./dbconnector.js";
 import Evento from "../models/evento.js";
 
 export default class eventoDAO{
-    constructor() {
+    constructor(){
         this.init();
     }
     
     async init() {
         try {
-            const connection = new dbconnect();
+            const conexao = await dbconnect();
             const sql = `CREATE TABLE IF NOT EXISTS eventos (
             eve_nome VARCHAR(50) NOT NULL primary key, 
             eve_data DATETIME NOT NULL,
@@ -18,8 +18,8 @@ export default class eventoDAO{
             eve_ingressosDispo INT NOT NULL,
             eve_descricao VARCHAR(200) NOT NULL
             )`;
-            await connection.execute(sql);
-            await global.poolConnections.release(connection)
+            await conexao.execute(sql);
+            await global.poolConexoes.releaseConnection(conexao)
             console.log("Banco de dados iniciado");
         } catch(err){
             console.log(err);
@@ -28,10 +28,9 @@ export default class eventoDAO{
     
     async gravar(evento){
         if(evento instanceof Evento) {
-            const connection = await dbconnect();
-            const sql = `insert into eventos
-            (eve_nome, eve_data, eve_horario, eve_local, eve_preco, eve_ingressosDispo, eve_descricao)
-            values (? ? ? ? ? ? ? ?);`
+            const conexao = await dbconnect();
+            const sql = `insert into eventos(eve_nome, eve_data, eve_horario, eve_local, eve_preco, eve_ingressosDispo, eve_descricao)
+            values (?, ?, ?, ?, ?, ?, ?);`
             const parametros = [
                 evento.nome,
                 evento.data,
@@ -41,73 +40,79 @@ export default class eventoDAO{
                 evento.ingressosDispo,
                 evento.descricao
             ]
-            await connection.execute(sql, parametros);
-            await global.poolConnections.release(connection);
+            await conexao.execute(sql, parametros);
+            await global.poolConexoes.releaseConnection(conexao);
         }
     }
     async alterar(evento){
         if(evento instanceof Evento) {
-            const connection = await dbconnect();
-            const sql = `update eventos set 
+            const conexao = await dbconnect();
+            const sql = `UPDATE eventos SET 
             eve_data = ?, 
             eve_horario = ?, 
             eve_local = ?, 
             eve_preco = ?, 
             eve_ingressosDispo = ?, 
             eve_descricao = ?
-            where eve_nome = ?;
-           `;
-            const parametros = [
-                evento.data,
-                evento.horario,
-                evento.local,
-                evento.preco,
-                evento.ingressosDispo,
-                evento.descricao,
-                evento.nome,
-            ]
-            await connection.execute(sql, parametros);
-            await global.poolConnections.release(connection);
+            WHERE eve_nome = ?;
+        `;
+        const parametros = [
+            evento.data,
+            evento.horario,
+            evento.local,
+            evento.preco,
+            evento.ingressosDispo,
+            evento.descricao,
+            evento.nome
+        ];
+            await conexao.execute(sql, parametros);
+            await global.poolConexoes.releaseConnection(conexao);
         }
     }
     async excluir(evento){
         if(evento instanceof Evento){
-            const connection = await dbconnect();
-            const sql = `delete from evento where eve_nome = ?;`
+            const conexao = await dbconnect();
+            const sql = `delete from eventos where eve_nome = ?;`
             const parametros =[
                 evento.nome
             ]
-            await connection.execute(sql, parametros);
-            await global.poolConnections.release(connection);
+            await conexao.execute(sql, parametros);
+            await global.poolConexoes.releaseConnection(conexao);
         }
     }
     async consultar(parametroBusca){
-        const sql = ""
-        let parametros = [];
+        let sql = ""
+        let parametro = [];
         if(parametroBusca){
-            sql = `select * from evento where eve_nome = ? order by eve_data;`
-            parametros.push(parametroBusca);
+            sql = `SELECT * FROM eventos WHERE eve_nome = ?;`;
+            parametro.push(parametroBusca);
         }
         else{
-            sql = `select * from eventos order by eve_nome;`
+            sql=`select * from eventos order by eve_nome;`
         }
         
-        const connection = await dbconnect();
-        const [registros] = await connection.execute(sql)
+
+        const conexao = await dbconnect();
+        const [registros] = await conexao.execute(sql, parametro)
         let listaEventos = [];
-        for (const reg of registros){
-            const evento = new Evento(
-                reg.nome,
-                reg.data,
-                reg.horario,
-                reg.local,
-                reg.preco,
-                reg.ingressosDispo,
-                reg.descricao
-            );
-            listaEventos.push(evento);
+        if(registros.length > 0){
+            for (const registro of registros){
+                const evento = new Evento(
+                    registro.eve_nome,
+                    registro.eve_data,
+                    registro.eve_horario,
+                    registro.eve_local,
+                    registro.eve_preco,
+                    registro.eve_ingressosDispo,
+                    registro.eve_descricao
+                );
+                listaEventos.push(evento);
+            }
+            await global.poolConexoes.releaseConnection(conexao);
+            return listaEventos;
+        }else {
+           listaEventos.push("evento nao encontrado");
+           return listaEventos 
         }
-        await global.poolConnections.release(connection);
-        return listaEventos;
     }
 }

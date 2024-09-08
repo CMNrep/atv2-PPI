@@ -73,17 +73,16 @@ horario: ${this.#horario}
 local: ${this.#local}
 preco: ${this.#preco}
 ingressosDisponiveis: ${this.#ingressosDispo}
-descricao: ${this.#descricao}
-    `;
+descricao: ${this.#descricao}`
     }
 
     async incluir() {
         const eveDAO = new eventoDAO();
         await eveDAO.gravar(this);
     }
-    async alterar() {
+    async alterar(altEvento) {
         const eveDAO = new eventoDAO();
-        await eveDAO.alterar(this);
+        await eveDAO.alterar(altEvento);
     }
     async excluir() {
         const eveDAO = new eventoDAO();

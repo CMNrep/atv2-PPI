@@ -1,8 +1,8 @@
-import mysql from 'mysql/promise';
+import mysql from 'mysql2/promise';
 
 export default async function dbconnect(){
-    if(global.poolConnections){
-        return await global.poolConnections.getConnection()
+    if(global.poolConexoes){
+        return await global.poolConexoes.getConnection()
     }
     else{
         const pool = mysql.createPool({
@@ -20,8 +20,8 @@ export default async function dbconnect(){
             keepAliveInitialDelay: 0,
         });
         
-        global.poolConnections = pool;
+        global.poolConexoes = pool;
 
-        return await global.poolConnections.getConnection();
+        return await global.poolConexoes.getConnection();
     }	
 }
