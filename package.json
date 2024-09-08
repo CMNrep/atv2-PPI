@@ -1,0 +1,27 @@
+{
+  "name": "atv2-ppi",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CMNrep/atv2-PPI.git"
+  },
+  "keywords": [
+    "backend"
+  ],
+  "author": "cristian",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/CMNrep/atv2-PPI/issues"
+  },
+  "homepage": "https://github.com/CMNrep/atv2-PPI#readme",
+  "description": "",
+  "dependencies": {
+    "mysql2": "^3.11.0"
+  }
+}
