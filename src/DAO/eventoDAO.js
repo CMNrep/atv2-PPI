@@ -1,5 +1,5 @@
 import dbconnect from "./dbconnector.js";
-import Evento from "./models/Evento.js";
+import Evento from "../models/evento.js";
 
 export default class eventoDAO{
     constructor() {

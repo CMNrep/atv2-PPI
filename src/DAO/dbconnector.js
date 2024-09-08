@@ -9,6 +9,7 @@ export default async function dbconnect(){
             host: 'localhost',
             user: 'root',
             password: '', //senha confia
+            port: 3306,
             database: 'atv2PPI',
             waitForConnections: true,
             connectionLimit: 10,
